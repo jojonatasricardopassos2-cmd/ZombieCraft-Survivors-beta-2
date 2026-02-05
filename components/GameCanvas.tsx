@@ -80,6 +80,9 @@ export const GameCanvas: React.FC = () => {
         attackCooldown: 0
     });
     
+    // Mechanics Refs
+    const treePassRef = useRef<boolean>(false); // Allows walking through trees
+
     // Multiplayer Support
     // We add a 'lastSeen' property to track active players
     const otherPlayersRef = useRef<(Entity & { lastSeen?: number })[]>([]);
@@ -270,6 +273,15 @@ export const GameCanvas: React.FC = () => {
             for(let x=startX; x<=endX; x++) {
                 if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT) continue;
                 const b = world.blocks[y*WORLD_WIDTH+x];
+                
+                // --- TREE PASS-THROUGH LOGIC ---
+                // Only for PLAYER entity and when treePassRef is ON
+                if (ent.type === 'PLAYER' && treePassRef.current) {
+                    if (b === BlockType.WOOD || b === BlockType.DARK_WOOD) {
+                        continue; // Treat as non-collidable (Air)
+                    }
+                }
+
                 if (!NON_COLLIDABLE_BLOCKS.has(b)) return true;
             }
         }
@@ -1021,6 +1033,15 @@ export const GameCanvas: React.FC = () => {
             if (e.code === 'KeyF') handleInteraction();
             if (e.code === 'KeyG') dropItem();
             if (e.code === 'KeyQ') { if (equipment.offHand && equipment.offHand.type === ItemType.SHIELD) { blockingRef.current = true; } }
+            
+            // TREE PASS-THROUGH TOGGLE (PC)
+            if (e.code === 'KeyS') {
+                if (!e.repeat) {
+                    treePassRef.current = !treePassRef.current;
+                    addNotification(treePassRef.current ? (lang==='PT' ? "Atravessar Árvores: LIGADO" : "Tree Pass: ON") : (lang==='PT' ? "Atravessar Árvores: DESLIGADO" : "Tree Pass: OFF"));
+                }
+            }
+
             if (e.code === 'KeyP') { if (options.adminMode) { setIsAdminMenuOpen(prev => !prev); } }
             if (e.code.startsWith('Digit')) { const num = parseInt(e.code.replace('Digit', '')); if (num > 0 && num <= 9) setSelectedSlot(num - 1); }
             if (e.code === 'ShiftLeft') sprintRef.current = true;
@@ -1472,6 +1493,10 @@ export const GameCanvas: React.FC = () => {
                                 // Quick offhand swap logic reused
                                 setEquipment(prev => ({ ...prev, offHand: inventory[selectedSlot] })); 
                                 setInventory(prev => { const newInv = [...prev]; newInv[selectedSlot] = equipment.offHand; return newInv; });
+                            }}
+                            onToggleTreePass={() => {
+                                treePassRef.current = !treePassRef.current;
+                                addNotification(treePassRef.current ? (lang==='PT' ? "Atravessar Árvores: LIGADO" : "Tree Pass: ON") : (lang==='PT' ? "Atravessar Árvores: DESLIGADO" : "Tree Pass: OFF"));
                             }}
                         />
                     )}

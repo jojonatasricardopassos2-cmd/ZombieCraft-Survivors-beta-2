@@ -6,9 +6,10 @@ interface MobileControlsProps {
     onToggleInventory: () => void;
     onDrop: () => void;
     onEquip: () => void; // Swap offhand
+    onToggleTreePass: () => void;
 }
 
-export const MobileControls: React.FC<MobileControlsProps> = ({ onInput, onToggleInventory, onDrop, onEquip }) => {
+export const MobileControls: React.FC<MobileControlsProps> = ({ onInput, onToggleInventory, onDrop, onEquip, onToggleTreePass }) => {
     const joystickRef = useRef<HTMLDivElement>(null);
     const [stickPos, setStickPos] = useState({ x: 0, y: 0 });
     const [activeButtons, setActiveButtons] = useState<Record<string, boolean>>({});
@@ -138,6 +139,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ onInput, onToggl
 
             {/* Utility Buttons (Top Right) */}
             <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
+                <button onClick={onToggleTreePass} className="w-12 h-12 bg-green-900/80 border border-green-500 rounded flex items-center justify-center text-xl" title="Toggle Tree Pass">🌲</button>
                 <button onClick={onEquip} className="w-12 h-12 bg-gray-800/80 border border-gray-500 rounded flex items-center justify-center text-xl">🛡️</button>
                 <button onClick={onDrop} className="w-12 h-12 bg-gray-800/80 border border-gray-500 rounded flex items-center justify-center text-xl">🚮</button>
                 <button onClick={onToggleInventory} className="w-12 h-12 bg-gray-800/80 border border-gray-500 rounded flex items-center justify-center text-xl">🎒</button>
